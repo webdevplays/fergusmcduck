@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Chivo+Mono:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Duck - The Only Duck That Can Swim in BNB Liquidity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+   
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ducker-orange': '#EDC70C',
+                        'ducker-yellow': '#FFFF',
+                        'ducker-blue': '#1E40AE',
+                    },
+                    keyframes: {
+                        float: {
+                          '0%, 100%': { transform: 'translateY(0)' },
+                          '50%': { transform: 'translateY(-20px)' },
+                        },
+                        wobble: {
+                          '0%, 100%': { transform: 'rotate(-3deg)' },
+                          '50%': { transform: 'rotate(3deg)' },
+                        },
+                        pulse: {
+                          '0%, 100%': { opacity: 1 },
+                          '50%': { opacity: 0.7 },
+                        }
+                    },
+                    animation: {
+                        float: 'float 6s ease-in-out infinite',
+                        wobble: 'wobble 3s ease-in-out infinite',
+                        pulse: 'pulse 2s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: "Chivo Mono", monospace;
+            overflow-x: hidden;
+        }
+        .duck-shadow {
+            text-shadow: 
+    -1px -1px 0 #000,  
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000; /* Outline color */
+            
+        }
+
+
+        @font-face {
+    font-family: typeshi;
+    src: url(https://duckbnb.club/ducker.fan/ducker.fan/assets/modern-love-regular.ttf);
+}
+
+        .blue-shadow{
+         
+            box-shadow: 0px 9px 0px #1340AE;
+        }
+
+        .heading{
+            font-family: typeshi, system-ui;
+            letter-spacing: 2px;
+        }
+
+        /* Animation classes */
+        .animate-on-scroll {
+            opacity: 1; /* Changed from 0 to 1 to remove animation */
+            transform: translateY(0); /* Changed from translateY(40px) to remove animation */
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .animate-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .stagger-item {
+            opacity: 1; /* Changed from 0 to 1 to make hero text visible */
+            transform: translateY(0); /* Changed from translateY(20px) to remove animation */
+        }
+        
+        @keyframes splash {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .splash-animation {
+            animation: none; /* Removed splash animation */
+        }
+        
+        /* Duck floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Button hover effect */
+        .btn-grow {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-grow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0px 12px 0px #3363DC;
+        }
+        
+        /* Water ripple effect for sections */
+        .ripple-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple-effect::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(51, 99, 220, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple-effect:hover::after {
+            width: 300%;
+            height: 300%;
+        }
+    </style>
+</head>
+<body class="bg-ducker-orange">
+    <div class="max-w-7xl mx-auto px-4">
+        <!-- Navigation -->
+        <nav class="flex flex-col md:flex-row justify-center items-center py-4 md:py-6 w-full" data-aos="fade-up">
+            <!-- Mobile menu toggle button (only visible on small screens) -->
+            <div class="md:hidden mb-4 w-full flex justify-center">
+                <button id="mobile-menu-toggle" class="text-white hover:text-ducker-blue transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Navigation links container -->
+            <div id="nav-links" class="flex flex-col md:flex-row flex-wrap justify-center gap-3 md:gap-4 lg:gap-8 text-white w-full max-w-screen-xl px-4">
+                <a href="modern-love-regular.ttf.html#home" class="hover:text-ducker-blue px-2 py-1 text-center transition-colors duration-300">Home</a>
+                <a href="modern-love-regular.ttf.html#about" class="hover:text-ducker-blue px-2 py-1 text-center transition-colors duration-300">About</a>
+                <a href="modern-love-regular.ttf.html#token" class="hover:text-ducker-blue px-2 py-1 text-center transition-colors duration-300">Tokenomics</a>
+                <a href="modern-love-regular.ttf.html#road" class="hover:text-ducker-blue px-2 py-1 text-center transition-colors duration-300">Roadmap</a>
+                <a href="modern-love-regular.ttf.html#" class="bg-ducker-blue text-white px-3 md:px-4 lg:px-6 py-2 rounded border-2 border-ducker-blue font-bold hover:bg-white blue-shadow text-center  hover:text-ducker-blue w-full md:w-auto mt-4 md:mt-0 btn-grow">Chart</a>
+                <a href="modern-love-regular.ttf.html#" class="bg-ducker-blue text-white px-3 md:px-4 lg:px-6 py-2 rounded border-2 border-ducker-blue font-bold hover:bg-white blue-shadow text-center  hover:text-ducker-blue w-full md:w-auto mt-2 md:mt-0 btn-grow">Buy</a>
+                <a href="https://stake.duckbnb.club" class="bg-ducker-blue text-white px-3 md:px-4 lg:px-6 py-2 rounded border-2 border-ducker-blue font-bold hover:bg-white  hover:text-ducker-blue blue-shadow text-center w-full md:w-auto mt-2 md:mt-0 btn-grow">Stake</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="flex flex-col md:flex-row items-center justify-between" id="home" data-aos="fade-up">
+            <div class="w-full md:w-1/3">
+                <img src="https://duckbnb.club/ducker.fan/assets/assets/img/heromain.png" alt="Ducker Character" class="w-100 mx-auto md:mx-0 float-animation">
+            </div>
+            <div class="w-full md:w-2/3 text-center justify-center items-center md:text-center">
+                <h1 class="text-ducker-yellow text-7xl font-bold mb-6 mt-6 duck-shadow heading" id="hero-title">Meet Duck</h1>
+                <p class="text-ducker-blue text-xl mb-6" id="hero-text">The Only Duck That Can Swim in BNB Liquidity.</p>
+                <div class="flex justify-center md:justify-center space-x-4 mb-6" id="hero-social">
+                    <a href="https://t.me/duck_bep20" class="text-ducker-blue hover:text-blue-700 transform hover:scale-110 transition-transform duration-300">
+                      <img src="https://duckbnb.club/ducker.fan/assets/assets/img/tele.png" alt="">
+                    </a>
+                    <a href="https://x.com/Duck_bep20" class="text-ducker-blue hover:text-blue-700 transform hover:scale-110 transition-transform duration-300">
+                      <img src="https://duckbnb.club/ducker.fan/assets/assets/img/twit.png" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-3 blue-shadow text-center ripple-effect">
+            <p class="text-gray-700 font-mono">0x1A72064361894F185782 <br> bDbb046Bc2aF94Ab6Abe</p>
+        </div>
+
+        <!-- About Section -->
+        <div class="py-12" id="about">
+            <h2 class="text-ducker-yellow text-7xl font-bold text-center mb-8 duck-shadow heading" data-aos="fade-up">About Duck</h2>
+            <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg relative blue-shadow ripple-effect">
+                <div class="flex flex-col md:flex-row">
+                    <div class="w-full md:w-3/4 text-left p-6">
+                        <span class="font-bold text-ducker-blue">Duck</span> 
+                        <span class="text-ducker-blue">
+                         isn't your average cute little mallard.  
+                            He's derpy, dangerous, and dripping with meme energy.  
+                            Hatched on the BNB chain with a total supply of 1,000,000,000 and a savage 1/1 tax, DUCK was born to snipe rugs, roast devs, and soar with the most degenerate of degens.  
+                        </span>
+                        <p class="text-ducker-blue">
+                            Built for laughs, fueled by chaos, and powered by memes, he's pure, unfiltered duck energy backed by a community that doesn't give a quack.
+                        </p>
+                        <br>
+                        <br>
+                        <p style="font-size: 12px;">audit by <a href="https://coinsult.net/promotion">coinsult
+                            </a>
+                        </p>
+                    </div>
+                    <div class="w-full md:w-1/3 md:mb-0 flex justify-center mt-4 md:mt-0 lg:mb--10">
+                        <img src="https://duckbnb.club/ducker.fan/assets/assets/img/about-new.png" alt="Cool Ducker" class="w-64 animate-wobble">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tokenomics Section --> 
+        <div class="py-12" id="token">
+            <h2 class="text-ducker-yellow lg:text-7xl text-5xl font-bold text-center mb-8 duck-shadow heading" data-aos="fade-up">Duckonomics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-left">
+                    <p class="text-ducker-blue mb-2">Total Supply:</p>
+                    <p class="text-ducker-blue font-bold">1,000,000,000</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-right">
+                    <p class="text-ducker-blue mb-2">Buy/Sell Tax:</p>
+                    <p class="text-ducker-blue font-bold">1 / 1 %</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-left">
+                    <p class="text-ducker-blue mb-2">Chain:</p>
+                    <p class="text-ducker-blue font-bold">Binance Smart Chain</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-right">
+                    <p class="text-ducker-blue mb-2">Tokens For Presale</p>
+                    <p class="text-ducker-blue font-bold">500,000,000 50%</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-left">
+                    <p class="text-ducker-blue mb-2">Tokens For Liquidity</p>
+                    <p class="text-ducker-blue font-bold">242,250,000 24.225%</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-right">
+                    <p class="text-ducker-blue mb-2">Tokens ForStake Reward APY</p>
+                    <p class="text-ducker-blue font-bold">30% 150,000,000 15%</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-left">
+                    <p class="text-ducker-blue mb-2">Tokens For DUCK DAO Reward</p>
+                    <p class="text-ducker-blue font-bold">50,000,000 5%</p>
+                </div>
+                <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg p-6 text-center blue-shadow tokenomics-card" data-aos="fade-right">
+                    <p class="text-ducker-blue mb-2">Tokens For KOL</p>
+                    <p class="text-ducker-blue font-bold">57,750,000 5.775%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roadmap Section -->
+        <div class="py-12" id="road">
+            <h2 class="text-ducker-yellow lg:text-7xl text-5xl font-bold text-center mb-8 duck-shadow heading" data-aos="fade-up">DuckMap</h2>
+            <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg relative text-ducker-blue blue-shadow py-6 px-20 mb-8 roadmap-phase"  data-aos="fade-up">
+                <div class="head font-bold text-3xl mb-8">
+                    Phase 1: The Hatching
+                </div>
+                <li>
+                    Presale Launch
+                </li>
+                <li>
+                    LP Locked, Contract Renounced
+                </li>
+                <li>
+                    Meme Blitz Begins
+                </li>
+                <li>
+                    CMC + CoinGecko Listings
+                </li>
+            </div>
+            <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg relative text-ducker-blue blue-shadow py-6 px-20 mb-8 roadmap-phase" data-aos="fade-up">
+                <div class="head font-bold text-3xl mb-8">
+                    Phase 2: Quackonomics
+                </div>
+                <li>
+                    Staking DApp Live (30% APY)
+                </li>
+                <li>
+                    DEX + Chart Listings
+                </li>
+                <li>
+                    Twitter & Telegram Meme Raids
+                </li>
+                <li>
+                    Mini Influencer Collabs
+                </li>
+            </div>
+            <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg relative text-ducker-blue blue-shadow py-6 px-20 mb-8 roadmap-phase" data-aos="fade-up">
+                <div class="head font-bold text-3xl mb-8">
+                    Phase 3: The Duck Awakens
+                </div>
+                <li>
+                    DUCK NFT Drop
+                </li>
+                <li>
+                    Meme Mini-Game Teaser
+                </li>
+                <li>
+                    First CEX Listing
+                </li>
+                <li>
+                    Holder Rewards Drop
+                </li>
+            </div>
+            <div class="bg-ducker-yellow border-2 border-ducker-blue rounded-lg relative text-ducker-blue blue-shadow py-6 px-20 mb-8 roadmap-phase" data-aos="fade-up">
+                <div class="head font-bold text-3xl mb-8">
+                    Phase 4: Full Quack Mode
+                </div>
+                <li>
+                    DUCK DAO Launch
+                </li>
+                <li>
+                    Global Meme Invasion
+                </li>
+                <li>
+                    Cross-Chain Pond Bridge
+                </li>
+                <li>
+                    Merch Drop: Waddle Wear™
+                </li>
+            </div>
+        </div>
+
+        <div class="border-ducker-blue border-2 blue-shadow rounded-lg" data-aos="fade-down">
+            <img src="https://duckbnb.club/ducker.fan/assets/assets/img/Frame&#32;1.png" alt="" class="rounded-lg">
+        </div>
+
+        <!-- Partners Section -->
+        <div class="py-12">
+            <h2 class="text-ducker-yellow text-7xl font-bold text-center mb-8 duck-shadow heading" data-aos="fade-up">Partners</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-aos="fade-up">
+                <div class="flex items-center justify-center partner-logo">
+                    <a href="https://www.dexview.com/bsc/0x1A72064361894F185782bDbb046Bc2aF94Ab6Abe">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/dexview.png" alt="DEXView" class="h-full transition-transform duration-300 hover:scale-110">
+                </a>
+                </div>
+                <div class="flex items-center justify-center partner-logo">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/coingecko.png" alt="CoinGecko" class="h-full transition-transform duration-300 hover:scale-110">
+                </div>
+                <div class="flex items-center justify-center partner-logo">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/coinmarket.png" alt="CoinMarketCap" class="h-full transition-transform duration-300 hover:scale-110">
+                </div>
+                <div class="flex items-center justify-center partner-logo">
+                    <a href="https://www.pinksale.finance/launchpad/bsc/0xe96FE77B97011F18cC6F8702ed6891318514c538">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/pinksale.png" alt="PinkSale" class="h-full transition-transform duration-300 hover:scale-110">
+                    </a>
+                </div>
+                <div class="flex items-center justify-center partner-logo">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/dexscreener.png" alt="DEXScreener" class="h-full transition-transform duration-300 hover:scale-110">
+                </div>
+                <div class="flex items-center justify-center partner-logo">
+                    <img src="https://duckbnb.club/ducker.fan/assets/assets/img/dextools.png" alt="DEXTools" class="h-full transition-transform duration-300 hover:scale-110">
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="py-12">
+            <div class="flex flex-col md:flex-row items-center justify-between"  data-aos="fade-up">
+                <div class="w-full md:w-1/3 md:mb-0">
+                    <img src="../../assets/img/heromain.png" alt="Ducker Character" class="w-100 mx-auto md:mx-0 animate-float">
+                </div>
+                <div class="w-full md:w-2/3 text-center md:text-left">
+                    <h2 class="text-ducker-yellow text-7xl font-bold mb-2 duck-shadow heading">Duck</h2>
+                    <p class="text-ducker-blue text-xl mb-6">Made by degenerates, for degenerates. WAGDUCK.</p>
+                    <div class="flex justify-center md:justify-start space-x-4 mb-6">
+                        <a href="modern-love-regular.ttf.html#" class="bg-ducker-blue text-white px-6 py-2 rounded border-2 border-ducker-blue font-bold  hover:bg-white hover:text-ducker-blue blue-shadow btn-grow">Chart</a>
+                        <a href="https://t.me/duck_bep20" class="bg-ducker-blue text-white  px-6 py-2 rounded border-2 border-ducker-blue font-bold hover:bg-white hover:text-ducker-blue blue-shadow btn-grow">Buy</a>
+                        <a href="https://t.me/duck_bep20" class="text-ducker-blue  hover:text-blue-700 ml-4 transform hover:scale-110 transition-transform duration-300">
+                           <img src="https://duckbnb.club/ducker.fan/assets/assets/img/tele.png" alt="">
+                        </a>
+                        <a href="https://x.com/Duck_bep20" class="text-ducker-blue hover:text-blue-700 transform hover:scale-110 transition-transform duration-300">
+                          <img src="https://duckbnb.club/ducker.fan/assets/assets/img/twit.png" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="py-4 border-t border-yellow-400 text-center text-ducker-blue bg-ducker-yellow">
+                <p>© 2025 · Duck · All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Initialize AOS
+    AOS.init({
+        duration: 1000,
+        once: true,
+    });
+
+    // Mobile Menu Toggle
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('active');
+    });
+
+    // Screenshots Slider
+    const screenshots = document.querySelectorAll('.screenshot');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.getElementById('prev-screenshot');
+    const nextBtn = document.getElementById('next-screenshot');
+    const captionEl = document.getElementById('screenshot-caption');
+    const descriptionEl = document.getElementById('screenshot-description');
+    
+    const screenshotData = [
+        {
+            caption: "AI-Powered Chart Analysis",
+            description: "PipAI identifies key support and resistance levels with precision"
+        },
+        {
+            caption: "Real-time Sentiment Analysis",
+            description: "Track market sentiment across social media and news sources"
+        },
+        {
+            caption: "Whale Movement Alerts",
+            description: "Get notified of significant wallet activities that impact markets"
+        },
+    ];
+    
+    let currentIndex = 0;
+    
+    function showScreenshot(index) {
+        screenshots.forEach(screenshot => {
+            screenshot.classList.remove('active');
+        });
+        
+        dots.forEach(dot => {
+            dot.classList.remove('active');
+        });
+        
+        screenshots[index].classList.add('active');
+        dots[index].classList.add('active');
+        
+        captionEl.textContent = screenshotData[index].caption;
+        descriptionEl.textContent = screenshotData[index].description;
+    }
+    
+    prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex === 0) ? screenshots.length - 1 : currentIndex - 1;
+        showScreenshot(currentIndex);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex === screenshots.length - 1) ? 0 : currentIndex + 1;
+        showScreenshot(currentIndex);
+    });
+    
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentIndex = index;
+            showScreenshot(currentIndex);
+        });
+    });
+
+    // Accordion
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            
+            // Toggle active class on header
+            header.classList.toggle('active');
+            
+            // Toggle content visibility
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+            } else {
+                content.classList.add('active');
+            }
+        });
+    });
+
+    // Tokenomics Chart
+    const tokenomicsData = [
+        { name: "Public Sale", value: 40, color: "#8446CF" },
+        { name: "Team & Advisors", value: 15, color: "#2D1B87" },
+        { name: "Marketing", value: 10, color: "#6A35B0" },
+        { name: "Development", value: 15, color: "#4A2599" },
+        { name: "Liquidity", value: 10, color: "#9A5DE0" },
+        { name: "Ecosystem Growth", value: 10, color: "#3D1E7A" }
+    ];
+
+    // Create a canvas element for the chart
+    const chartContainer = document.getElementById('tokenomics-chart');
+    const canvas = document.createElement('canvas');
+    canvas.id = 'tokenomics-pie-chart';
+    chartContainer.appendChild(canvas);
+
+    // Create the chart
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: tokenomicsData.map(item => item.name),
+            datasets: [{
+                data: tokenomicsData.map(item => item.value),
+                backgroundColor: tokenomicsData.map(item => item.color),
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: 'white',
+                        font: {
+                            family: 'para'
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    },
+                    backgroundColor: '#0A0A0A',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderWidth: 1,
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    bodyFont: {
+                        family: 'para'
+                    },
+                    titleFont: {
+                        family: 'font'
+                    }
+                }
+            }
+        }
+    });
+</script>
+    <script>
+
+        
+        // Simple toggle for mobile menu
+        document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+            const navLinks = document.getElementById('nav-links');
+            navLinks.classList.toggle('hidden');
+            
+            // If currently hidden, show it
+            if (navLinks.classList.contains('hidden')) {
+                navLinks.classList.remove('hidden');
+            }
+        });
+        
+        // Hide menu by default on mobile
+        if (window.innerWidth < 768) {
+            document.getElementById('nav-links').classList.add('hidden');
+        }
+        
+        // Update visibility when resizing
+        window.addEventListener('resize', function() {
+            const navLinks = document.getElementById('nav-links');
+            if (window.innerWidth >= 768) {
+                navLinks.classList.remove('hidden');
+            } else {
+                navLinks.classList.add('hidden');
+            }
+        });
+
+        // Modified GSAP animations - removed heading animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Removed hero animations to make text visible
+            
+            // Modified to remove animations from elements
+            const animateOnScroll = document.querySelectorAll('.animate-on-scroll');
+            animateOnScroll.forEach(element => {
+                // Add active class immediately without animation
+                element.classList.add("active");
+            });
+            
+            // Modified partner logos animation to be visible immediately
+            gsap.to(".partner-logo", {
+                opacity: 1,
+                duration: 0
+            });
+            
+            // Keep button hover effects
+            const buttons = document.querySelectorAll('.btn-grow');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function(e) {
+                    gsap.to(this, {
+                        duration: 0.3,
+                        y: -3,
+                        boxShadow: "0px 12px 0px #3363DC",
+                        ease: "power1.out"
+                    });
+                });
+                
+                button.addEventListener('mouseleave', function(e) {
+                    gsap.to(this, {
+                        duration: 0.3,
+                        y: 0,
+                        boxShadow: "0px 9px 0px #3363DC",
+                        ease: "power1.out"
+                    });
+                });
+            });
+        });
+        
+        // Modified Intersection Observer to make elements visible immediately
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Make all elements active immediately
+                entry.target.classList.add('active');
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            // Add active class immediately
+            el.classList.add('active');
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
